@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "WeatherSpot"
 include(":app")
- 
+include(":common")
