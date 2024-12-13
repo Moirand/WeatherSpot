@@ -42,6 +42,9 @@ android {
 dependencies {
     implementation(project(":common"))
 
+    // Navigation
+    implementation(libs.navigation.compose)
+
     // Generated
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
