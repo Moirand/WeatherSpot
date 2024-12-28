@@ -31,13 +31,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.common.component.MyButton
 import com.example.common.component.MyTextInput
-import com.example.common.ui.theme.WeatherSpotTheme
 import com.example.common.ui.theme.Purple1
+import com.example.common.ui.theme.WeatherSpotTheme
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    navigateToRegister: () -> Unit = {}
+    navigateToRegister: () -> Unit = {},
+    navigateToHome: () -> Unit = {}
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -61,7 +62,8 @@ fun LoginScreen(
         )
         Spacer(modifier = Modifier.weight(1f))
         Bottom(
-            navigateToRegister = navigateToRegister
+            navigateToRegister = navigateToRegister,
+            navigateToHome = navigateToHome
         )
     }
 }
@@ -147,7 +149,8 @@ fun Center(
 
 @Composable
 fun Bottom(
-    navigateToRegister: () -> Unit = {}
+    navigateToRegister: () -> Unit = {},
+    navigateToHome: () -> Unit = {}
 ) {
     val annotatedText = buildAnnotatedString {
         append("Don't have an account? ")
@@ -170,7 +173,7 @@ fun Bottom(
     ) {
         MyButton(
             text = "Log In",
-            action = {}
+            action = navigateToHome
         )
 
         Spacer(modifier = Modifier.height(16.dp))

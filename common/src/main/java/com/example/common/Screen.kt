@@ -9,4 +9,5 @@ sealed class Screen(val route: String) {
             "otp_verification/$fullName-$email-$phoneNumber-$password"
     }
     data object SuccessRegistration : Screen("success_registration")
+    data object Home : Screen("home")
 }
