@@ -41,9 +41,18 @@ android {
 
 dependencies {
     implementation(project(":common"))
+    implementation(project(":domain"))
+    implementation(project(":di"))
+
+    // Koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.compose)
 
     // Navigation
     implementation(libs.navigation.compose)
+
+    // Livedata
+    implementation(libs.livedata)
 
     // Generated
     implementation(libs.androidx.core.ktx)
