@@ -53,7 +53,7 @@ fun MyTextInput(
             if (icon != null) {
                 Icon(
                     painter = painterResource(id = icon),
-                    contentDescription = "",
+                    contentDescription = null,
                     modifier = Modifier.padding(end = 8.dp)
                 )
             }
@@ -67,7 +67,7 @@ fun MyTextInput(
                         Icon(
                             painter = if (textVisibility) painterResource(id = R.drawable.ic_visibility_on)
                             else painterResource(id = R.drawable.ic_visibility_off),
-                            contentDescription = ""
+                            contentDescription = if (textVisibility) "Hide password" else "Show password"
                         )
                     }
                 } else {
@@ -76,7 +76,7 @@ fun MyTextInput(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Clear,
-                            contentDescription = ""
+                            contentDescription = "Clear input"
                         )
                     }
                 }
