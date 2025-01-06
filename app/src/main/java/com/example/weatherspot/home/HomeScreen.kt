@@ -1,5 +1,9 @@
 package com.example.weatherspot.home
 
+import android.app.Activity
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -26,8 +30,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -35,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,11 +54,87 @@ import com.example.common.component.MyBottomSheetTopBar
 import com.example.common.component.MyDetailWeatherCard
 import com.example.common.ui.theme.Neutral1
 import com.example.common.ui.theme.Neutral3
+import com.example.domain.UiState
+import com.example.domain.model.response.CurrentResponseDomain
+import com.example.weatherspot.utils.LocationHelper
+import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    viewModel: HomeViewModel = koinViewModel(),
+) {
+    val context = LocalContext.current
+    val locationHelper = remember { LocationHelper(context) }
+
+    val weatherState by remember { viewModel.weatherState }.collectAsState()
+    val locationState by remember { locationHelper.locationState }.collectAsState()
+
+    var locationWeather by remember { mutableStateOf(CurrentResponseDomain()) }
+
+    // Popup aktivasi gps
+    val gpsLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) { // Jika memilih "Oke"
+            locationHelper.startLocationUpdates()
+        }
+    }
+
+    // Popup izin lokasi
+    val locationLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.values.all { it }
+        if (allGranted) {
+            locationHelper.checkAndHandleGpsStatus(
+                gpsLauncher = gpsLauncher,
+                onGpsOn = { locationHelper.startLocationUpdates() }
+            )
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        locationHelper.getLastLocation()
+
+        if (locationHelper.isLocationPermissionGranted()) {
+            locationHelper.checkAndHandleGpsStatus(
+                gpsLauncher = gpsLauncher,
+                onGpsOn = { locationHelper.startLocationUpdates() }
+            )
+        } else {
+            locationHelper.requestLocationPermission(locationLauncher)
+        }
+    }
+
+    LaunchedEffect(locationState) {
+        when (locationState) {
+            is UiState.Error -> Log.e("HomeScreen", "HomeScreen() locationState: ${locationState.message}")
+            is UiState.Loading -> {}
+            is UiState.Success -> locationState.data?.let { currentLocation ->
+                viewModel.setLocation(currentLocation)
+            }
+        }
+    }
+
+    LaunchedEffect(weatherState) {
+        when (weatherState) {
+            is UiState.Error -> Log.e("HomeScreen", "HomeScreen() weatherState: ${weatherState.message}")
+            is UiState.Loading -> {}
+            is UiState.Success -> weatherState.data?.let { currentLocationWeather ->
+                locationWeather = currentLocationWeather
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            locationHelper.stopLocationUpdates()
+        }
+    }
+
+    // BottomSheet setup
     val bottomSheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.PartiallyExpanded,
         confirmValueChange = { sheetValue ->
@@ -71,15 +156,16 @@ fun HomeScreen() {
         sheetShape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
         sheetContent = { BottomSheetContent() },
         sheetContainerColor = Color(0xFF34326A),
-        content = { MainContent(bottomSheetState) }
+        content = { MainContent(bottomSheetState, locationWeather) }
     )
 }
 
 @Preview(showBackground = true)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainContent(
-    bottomSheetState: SheetState = rememberStandardBottomSheetState()
+private fun MainContent(
+    bottomSheetState: SheetState = rememberStandardBottomSheetState(),
+    locationWeather: CurrentResponseDomain = CurrentResponseDomain()
 ) {
     val alpha1 by animateFloatAsState(
         animationSpec = tween(
@@ -129,12 +215,12 @@ fun MainContent(
         ) {
             Spacer(modifier = Modifier.height(48.dp))
             Text(
-                text = "Montreal",
+                text = locationWeather.location?.name ?: "City",
                 color = Neutral1,
                 style = MaterialTheme.typography.headlineLarge
             )
             Text(
-                text = "19°",
+                text = "${locationWeather.current?.tempC}°",
                 color = Neutral1,
                 fontSize = 56.sp,
                 style = MaterialTheme.typography.headlineLarge.copy(
@@ -142,14 +228,14 @@ fun MainContent(
                 )
             )
             Text(
-                text = "Mostly Clear",
+                text = locationWeather.current?.condition?.text ?: "",
                 color = Neutral3,
                 fontSize = 20.sp,
                 style = MaterialTheme.typography.bodySmall
             )
             Row {
                 Text(
-                    text = "H:24°",
+                    text = "H:${locationWeather.current?.tempC?.plus(1.0)}°", // Hanya data dummy karena data dari API tidak tersedia
                     color = Neutral1,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall.copy(
@@ -158,7 +244,7 @@ fun MainContent(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "L:16°",
+                    text = "L:${locationWeather.current?.tempC?.plus(-1.0)}°", // Hanya data dummy karena data dari API tidak tersedia,
                     color = Neutral1,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall.copy(
@@ -176,20 +262,20 @@ fun MainContent(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "Montreal",
+                text = locationWeather.location?.name ?: "City",
                 color = Neutral1,
                 style = MaterialTheme.typography.headlineLarge
             )
             Row {
                 Text(
-                    text = "19°",
+                    text = "${locationWeather.current?.tempC}°",
                     color = Neutral3,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Mostly Clear",
+                    text = locationWeather.current?.condition?.text ?: "",
                     color = Neutral3,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall
@@ -201,7 +287,7 @@ fun MainContent(
 
 @Preview(showBackground = true)
 @Composable
-fun BottomSheetContent() {
+private fun BottomSheetContent() {
     Column(modifier = Modifier.height(624.dp)) {
         var selectedTabIndex by remember { mutableIntStateOf(0) }
 

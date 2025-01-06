@@ -44,6 +44,9 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":di"))
 
+    // Location
+    implementation(libs.play.services.location)
+
     // Koin
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.compose)
