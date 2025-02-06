@@ -8,7 +8,7 @@ data class Day(
     val avgvisKm: Double? = null,
 
     @field:SerializedName("uv")
-    val uv: Int? = null,
+    val uv: Double? = null,
 
     @field:SerializedName("avgtemp_f")
     val avgtempF: Double? = null,
@@ -17,7 +17,7 @@ data class Day(
     val avgtempC: Double? = null,
 
     @field:SerializedName("daily_chance_of_snow")
-    val dailyChanceOfSnow: Int? = null,
+    val dailyChanceOfSnow: Double? = null,
 
     @field:SerializedName("maxtemp_c")
     val maxtempC: Double? = null,
@@ -29,10 +29,10 @@ data class Day(
     val mintempC: Double? = null,
 
     @field:SerializedName("avgvis_miles")
-    val avgvisMiles: Int? = null,
+    val avgvisMiles: Double? = null,
 
     @field:SerializedName("daily_will_it_rain")
-    val dailyWillItRain: Int? = null,
+    val dailyWillItRain: Double? = null,
 
     @field:SerializedName("mintemp_f")
     val mintempF: Double? = null,
@@ -41,10 +41,10 @@ data class Day(
     val totalprecipIn: Double? = null,
 
     @field:SerializedName("totalsnow_cm")
-    val totalsnowCm: Int? = null,
+    val totalsnowCm: Double? = null,
 
     @field:SerializedName("avghumidity")
-    val avghumidity: Int? = null,
+    val avghumidity: Double? = null,
 
     @field:SerializedName("condition")
     val condition: Condition? = null,
@@ -56,11 +56,11 @@ data class Day(
     val maxwindMph: Double? = null,
 
     @field:SerializedName("daily_chance_of_rain")
-    val dailyChanceOfRain: Int? = null,
+    val dailyChanceOfRain: Double? = null,
 
     @field:SerializedName("totalprecip_mm")
     val totalprecipMm: Double? = null,
 
     @field:SerializedName("daily_will_it_snow")
-    val dailyWillItSnow: Int? = null
+    val dailyWillItSnow: Double? = null
 )

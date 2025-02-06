@@ -11,7 +11,7 @@ data class HourItem(
     val feelslikeF: Double? = null,
 
     @field:SerializedName("wind_degree")
-    val windDegree: Int? = null,
+    val windDegree: Double? = null,
 
     @field:SerializedName("windchill_f")
     val windchillF: Double? = null,
@@ -26,7 +26,7 @@ data class HourItem(
     val tempF: Double? = null,
 
     @field:SerializedName("cloud")
-    val cloud: Int? = null,
+    val cloud: Double? = null,
 
     @field:SerializedName("wind_kph")
     val windKph: Double? = null,
@@ -35,19 +35,19 @@ data class HourItem(
     val windMph: Double? = null,
 
     @field:SerializedName("snow_cm")
-    val snowCm: Int? = null,
+    val snowCm: Double? = null,
 
     @field:SerializedName("humidity")
-    val humidity: Int? = null,
+    val humidity: Double? = null,
 
     @field:SerializedName("dewpoint_f")
-    val dewpointF: Int? = null,
+    val dewpointF: Double? = null,
 
     @field:SerializedName("will_it_rain")
     val willItRain: Int? = null,
 
     @field:SerializedName("uv")
-    val uv: Int? = null,
+    val uv: Double? = null,
 
     @field:SerializedName("heatindex_f")
     val heatindexF: Double? = null,
@@ -59,7 +59,7 @@ data class HourItem(
     val isDay: Int? = null,
 
     @field:SerializedName("precip_in")
-    val precipIn: Int? = null,
+    val precipIn: Double? = null,
 
     @field:SerializedName("heatindex_c")
     val heatindexC: Double? = null,
@@ -74,7 +74,7 @@ data class HourItem(
     val pressureIn: Double? = null,
 
     @field:SerializedName("chance_of_rain")
-    val chanceOfRain: Int? = null,
+    val chanceOfRain: Double? = null,
 
     @field:SerializedName("gust_kph")
     val gustKph: Double? = null,
@@ -89,7 +89,7 @@ data class HourItem(
     val willItSnow: Int? = null,
 
     @field:SerializedName("vis_km")
-    val visKm: Int? = null,
+    val visKm: Double? = null,
 
     @field:SerializedName("time_epoch")
     val timeEpoch: Int? = null,
@@ -98,11 +98,11 @@ data class HourItem(
     val time: String? = null,
 
     @field:SerializedName("chance_of_snow")
-    val chanceOfSnow: Int? = null,
+    val chanceOfSnow: Double? = null,
 
     @field:SerializedName("pressure_mb")
-    val pressureMb: Int? = null,
+    val pressureMb: Double? = null,
 
     @field:SerializedName("vis_miles")
-    val visMiles: Int? = null
+    val visMiles: Double? = null
 )
