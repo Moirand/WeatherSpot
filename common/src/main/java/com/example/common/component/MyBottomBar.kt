@@ -5,8 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.FloatingActionButton
@@ -35,7 +35,7 @@ fun MyBottomBar() {
 
     val navigationItems = listOf(
         "Home" to Icons.Filled.Home,
-        "Add" to Icons.Filled.Add,
+        "Search" to Icons.Filled.Search,
         "Settings" to Icons.Filled.Settings
     )
 
@@ -68,8 +68,8 @@ fun MyBottomBar() {
             containerColor = Purple2
         ) {
             Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add",
+                imageVector = navigationItems[1].second,
+                contentDescription = navigationItems[1].first,
                 tint = Color.White
             )
         }
