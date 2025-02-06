@@ -28,7 +28,7 @@ import com.example.common.ui.theme.WeatherSpotTheme
 fun MyForecastCard(
     time: Int,
     icon: Int,
-    temperature: Int,
+    temperature: String,
     isCurrent: Boolean
 ) {
     ElevatedCard(
@@ -81,7 +81,7 @@ private fun MyForecastCard1Preview() {
         MyForecastCard(
             time = 12,
             icon = com.example.common.R.drawable.img_cloudy_windy_night,
-            temperature = 19,
+            temperature = "19.5",
             isCurrent = true
         )
     }
@@ -94,7 +94,7 @@ private fun MyForecastCard2Preview() {
         MyForecastCard(
             time = 12,
             icon = com.example.common.R.drawable.img_cloudy_windy_night,
-            temperature = 19,
+            temperature = "19",
             isCurrent = false
         )
     }
