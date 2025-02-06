@@ -4,7 +4,7 @@ import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.domain.UiState
-import com.example.domain.model.response.CurrentResponseDomain
+import com.example.domain.model.response.ForecastResponseDomain
 import com.example.domain.repository.WeatherRepository
 import com.example.weatherspot.utils.DUMMY_COORDINATE
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,9 +25,9 @@ class HomeViewModel(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val weatherState: StateFlow<UiState<CurrentResponseDomain>> = _locationCoordinate
+    val forecastState: StateFlow<UiState<ForecastResponseDomain>> = _locationCoordinate
         .flatMapConcat { (lat, long) ->
-            weatherRepository.getCurrentWeather(lat, long)
+            weatherRepository.getSevenDaysForecast(lat, long)
         }
         .stateIn(
             scope = viewModelScope,

@@ -1,5 +1,6 @@
 package com.example.weatherspot.home
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -55,7 +56,7 @@ import com.example.common.component.MyDetailWeatherCard
 import com.example.common.ui.theme.Neutral1
 import com.example.common.ui.theme.Neutral3
 import com.example.domain.UiState
-import com.example.domain.model.response.CurrentResponseDomain
+import com.example.domain.model.response.ForecastResponseDomain
 import com.example.weatherspot.utils.LocationHelper
 import org.koin.androidx.compose.koinViewModel
 
@@ -68,10 +69,10 @@ fun HomeScreen(
     val context = LocalContext.current
     val locationHelper = remember { LocationHelper(context) }
 
-    val weatherState by remember { viewModel.weatherState }.collectAsState()
     val locationState by remember { locationHelper.locationState }.collectAsState()
+    val weatherState by remember { viewModel.forecastState }.collectAsState()
 
-    var locationWeather by remember { mutableStateOf(CurrentResponseDomain()) }
+    var locationWeather by remember { mutableStateOf(ForecastResponseDomain()) }
 
     // Popup aktivasi gps
     val gpsLauncher = rememberLauncherForActivityResult(
@@ -120,7 +121,7 @@ fun HomeScreen(
 
     LaunchedEffect(weatherState) {
         when (weatherState) {
-            is UiState.Error -> Log.e("HomeScreen", "HomeScreen() weatherState: ${weatherState.message}")
+            is UiState.Error -> Log.d("HomeScreen", "HomeScreen() weatherState: ${weatherState.message}")
             is UiState.Loading -> {}
             is UiState.Success -> weatherState.data?.let { currentLocationWeather ->
                 locationWeather = currentLocationWeather
@@ -154,7 +155,7 @@ fun HomeScreen(
         scaffoldState = scaffoldState,
         sheetPeekHeight = 386.dp,
         sheetShape = RoundedCornerShape(topStart = 40.dp, topEnd = 40.dp),
-        sheetContent = { BottomSheetContent() },
+        sheetContent = { BottomSheetContent(locationWeather) },
         sheetContainerColor = Color(0xFF34326A),
         content = { MainContent(bottomSheetState, locationWeather) }
     )
@@ -165,7 +166,7 @@ fun HomeScreen(
 @Composable
 private fun MainContent(
     bottomSheetState: SheetState = rememberStandardBottomSheetState(),
-    locationWeather: CurrentResponseDomain = CurrentResponseDomain()
+    locationWeather: ForecastResponseDomain = ForecastResponseDomain()
 ) {
     val alpha1 by animateFloatAsState(
         animationSpec = tween(
@@ -213,7 +214,7 @@ private fun MainContent(
                 .fillMaxWidth()
                 .alpha(alpha1)
         ) {
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(32.dp))
             Text(
                 text = locationWeather.location?.name ?: "City",
                 color = Neutral1,
@@ -235,7 +236,7 @@ private fun MainContent(
             )
             Row {
                 Text(
-                    text = "H:${locationWeather.current?.tempC?.plus(1.0)}°", // Hanya data dummy karena data dari API tidak tersedia
+                    text = "H:${locationWeather.forecast?.forecastday?.get(0)?.day?.maxtempC}°C",
                     color = Neutral1,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall.copy(
@@ -244,7 +245,7 @@ private fun MainContent(
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
-                    text = "L:${locationWeather.current?.tempC?.plus(-1.0)}°", // Hanya data dummy karena data dari API tidak tersedia,
+                    text = "L:${locationWeather.forecast?.forecastday?.get(0)?.day?.mintempC}°C",
                     color = Neutral1,
                     fontSize = 20.sp,
                     style = MaterialTheme.typography.bodySmall.copy(
@@ -285,9 +286,12 @@ private fun MainContent(
     }
 }
 
+@SuppressLint("NewApi")
 @Preview(showBackground = true)
 @Composable
-private fun BottomSheetContent() {
+private fun BottomSheetContent(
+    locationWeather: ForecastResponseDomain = ForecastResponseDomain()
+) {
     Column(modifier = Modifier.height(624.dp)) {
         var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -296,9 +300,11 @@ private fun BottomSheetContent() {
             onTabSelected = { selectedTabIndex = it }
         )
 
-        when (selectedTabIndex) {
-            0 -> HourlyForecast()
-            1 -> HourlyForecast()
+        locationWeather.forecast?.forecastday?.get(0)?.hour?.let {
+            when (selectedTabIndex) {
+                0 -> HourlyForecast(it)
+//            1 -> HourlyForecast(locationWeather.forecast?.forecastday?.get(0)?.hour)
+            }
         }
 
         LazyVerticalGrid(
@@ -309,23 +315,23 @@ private fun BottomSheetContent() {
         ) {
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
+                    icon = R.drawable.ic_uv,
                     title = "UV Index",
-                    detail = "4 Moderate"
+                    detail = "${locationWeather.current?.uv}"
                 )
             }
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
+                    icon = R.drawable.ic_wind,
                     title = "Wind",
-                    detail = "9.7 Km/h"
+                    detail = "${locationWeather.current?.windMph} Mp/h"
                 )
             }
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
+                    icon = R.drawable.ic_thermometer,
                     title = "Feels Like",
-                    detail = "19°",
+                    detail = "${locationWeather.current?.feelslikeC}°C",
                     extraDetail = "Similar to the actual temperature"
                 )
             }
@@ -333,39 +339,36 @@ private fun BottomSheetContent() {
                 MyDetailWeatherCard(
                     icon = R.drawable.ic_visibility_on,
                     title = "Visibility",
-                    detail = "8 Km"
+                    detail = "${locationWeather.current?.visKm} Km"
                 )
             }
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
+                    icon = R.drawable.ic_sunrise,
                     title = "Sunrise",
-                    detail = "5:28 AM",
-                    extraDetail = "Sunset: 7:28 PM"
+                    detail = "${locationWeather.forecast?.forecastday?.get(0)?.astro?.sunrise}",
+                    extraDetail = "Sunset: ${locationWeather.forecast?.forecastday?.get(0)?.astro?.sunset}"
                 )
             }
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
-                    title = "Rainfall",
-                    detail = "1.8 mm in last hour",
-                    extraDetail = "1.2 mm expected in next 24 hour"
+                    icon = R.drawable.ic_precipitation,
+                    title = "Precipitation",
+                    detail = "${locationWeather.current?.precipMm} Mm"
                 )
             }
             item {
                 MyDetailWeatherCard(
                     icon = R.drawable.ic_humidity,
                     title = "Humidity",
-                    detail = "90%",
-                    extraDetail = "The dew point is 17 right now"
+                    detail = "${locationWeather.current?.humidity}"
                 )
             }
             item {
                 MyDetailWeatherCard(
-                    icon = R.drawable.ic_humidity,
+                    icon = R.drawable.ic_pressure,
                     title = "Pressure",
-                    detail = "90%",
-                    extraDetail = "The dew point is 17 right now"
+                    detail = "${locationWeather.current?.pressureMb} Mb"
                 )
             }
         }
