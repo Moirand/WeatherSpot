@@ -41,6 +41,9 @@ private fun Astro.toDomain(): AstroDomain =
         sunrise = sunrise,
         moonPhase = moonPhase,
         sunset = sunset,
+        moonrise = moonrise,
+        isMoonUp = isMoonUp,
+        isSunUp = isSunUp
     )
 
 private fun Condition.toDomain(): ConditionDomain =
